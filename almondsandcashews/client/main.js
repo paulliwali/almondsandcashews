@@ -559,7 +559,16 @@ Template.gameView.events({
     }
   },
   'click .btn-vote': function () {
-    Players.update(player.PlayerName, {$set: {votes: ++votes}});
+    var VotedPlayer = getRadioValue("selected-player");
+
+    // Update player votes here.
+    players.forEach(function(player){
+      if(player.name == VotedPlayer){
+        player.votes = player.votes + 1;  
+        Players.update(player.votes, { $set: {votes: player.votes}});
+      }
+    });
+
     if (AllVotesIn()){
       console.log("ALL VOTES ARE IN");
       VotedOutPlayer = getVotedOutPlayer();
@@ -577,6 +586,7 @@ Template.gameView.events({
         ++VotesNeeded;
       }
     })
+
     var TotalVotes = 0;
     TotalVotes = Players.forEach(function(player){
       TotalVotes = player.votes + TotalVotes;
