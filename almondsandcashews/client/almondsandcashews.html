@@ -101,72 +101,24 @@
 
 <template name="gameView">
   <h4><a href="#" class="game-countdown {{#if gameFinished }}finished{{/if}} {{#if game.paused }}paused{{/if}}">{{{ timeRemaining }}}</a></h4>
-<<<<<<< Updated upstream
 
-<<<<<<< HEAD
   <div class="status-container">
-    <button class="btn-toggle-status">{{_ "ui.show hide" }}</button>
-
-    <div class="status-container-content">
-      {{#if player.isOdd }}
-        <div class="player-status player-status-spy">{{_ "you are the odd player" }}</div>
-
-        <div class="current-role">
-=======
-  
-  <div class="status-container">
-
-    <button class="btn-toggle-status">{{_ "ui.show hide" }}</button>
-
-    <div class="status-container-content">
-
-      {{#if player.isOdd }}
-      <div class="player-status player-status-spy">{{_ "you are the odd player." }}</div>
-       <div class="current-role">
->>>>>>> Stashed changes
-=======
-  <div class="current-role">
->>>>>>> 455dacec5404c07350d4700f1ff87ffe23160da3
-          <div class="current-role-header">
-            {{_ "ui.your item" }}:
-          </div>
-          <div class="current-role-name">
-            {{_ player.item }}
-          </div>
-        </div>
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
-  <div class="status-container">
-
     <button class="btn-toggle-status">{{_ "ui.show hide" }}</button>
 
     <div class="status-container-content"  style="display:none">
->>>>>>> 455dacec5404c07350d4700f1ff87ffe23160da3
-
       {{#if player.isOdd }}
       <button id="player-status player-status-spy">{{_ "you are the odd player." }}</button>
         <!-- <div class="player-status player-status-spy">{{_ "you are the odd player" }}</div> -->
       {{else}}
         <div class="player-status player-status-not-spy">{{{_ "you are not the odd player" }}}</div>
-
-<<<<<<< HEAD
         <div class="current-role">
-=======
-        <!-- <div class="player-status player-status-spy">{{_ "you are the odd player" }}</div> -->
-      {{else}}
-        <div class="player-status player-status-not-spy">{{{_ "you are not the odd player" }}}</div>
-         <div class="current-role">
->>>>>>> Stashed changes
           <div class="current-role-header">
             {{_ "ui.your item" }}:
           </div>
-          <div class="current-role-name">
-            {{_ player.item }}
-          </div>
+        <div class="current-role-name">
+          {{_ player.item }}
         </div>
-=======
->>>>>>> 455dacec5404c07350d4700f1ff87ffe23160da3
+      </div>
       {{/if}}
     </div>
   </div>
@@ -188,7 +140,7 @@
   <div class="u-cf"></div>
 
   <h5>{{_ "item reference - testing"}}</h5>
-<<<<<<< HEAD
+
   <ul class="location-list">
     {{#each items }}
       <li>
@@ -201,22 +153,21 @@
   <hr>
 
   <h5>{{_ "Players - test"}}</h5>
-=======
->>>>>>> 455dacec5404c07350d4700f1ff87ffe23160da3
+
   <ul class="location-list">
     {{#each players }}
-      <label>   
-        <input id= "selected-player" name="selectedPlayer" class="location-name" type="radio" value="{{ _name }}" > {{name}} 
+      <label>
+        <input id= "selected-player" name="selectedPlayer" class="location-name" type="radio" value="{{ _name }}" > {{name}}
       </label>
     {{/each}}
-  
   </ul>
+
   <hr>
 
   <div class="button-container">
     <button class="btn-end">{{_ "ui.end game" }}</button>
     <button class="btn-leave">{{_ "ui.leave game" }}</button>
-    <button class="btn-vote">{{_ "ui.vote greg out"}}</button>
+    <button class="btn-vote">{{_ "ui.vote greg out" }}</button>
   </div>
 </template>
 
@@ -239,7 +190,6 @@
 
     <div class="">
       <input type="text" id="player-name" name="playerName" placeholder='{{_ "ui.enter your name" }}'>
-      <input type="text" id="item-name" name="itemName" placeholder='{{_ "ui.enter your items" }}'>
 
       <div class="button-container">
         <input type="submit" value='{{_ "ui.create game" }}'>

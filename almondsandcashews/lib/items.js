@@ -10,12 +10,5 @@ items = [
   {
     itemA: 'cookies',
     itemB: 'banana bread'
-<<<<<<< Updated upstream
-=======
-  },
-  {
-    itemA: 'testiez',
-    itemB: 'blacks'
->>>>>>> Stashed changes
   }
 ]
