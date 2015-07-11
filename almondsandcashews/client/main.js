@@ -564,7 +564,9 @@ Template.gameView.events({
     // Update player votes here.
     players.forEach(function(player){
       if(player.name == VotedPlayer){
-        player.votes = player.votes + 1;  
+        player.votes = player.votes + 1;
+
+        // Need to change player.votes into the proper parameter
         Players.update(player.votes, { $set: {votes: player.votes}});
       }
     });
@@ -580,7 +582,7 @@ Template.gameView.events({
     }
   },
   AllVotesIn: function (){
-    var VotesNeeded = 0; 
+    var VotesNeeded = 0;
     Players.forEach(function(player){
       if (player.votedOut == false){
         ++VotesNeeded;
@@ -599,7 +601,7 @@ Template.gameView.events({
     }
   },
   getVotedOutPlayer: function (){
-    var MaxVotes = 0; 
+    var MaxVotes = 0;
     var PlayerVotedOut = Players.forEach(function(player){
       if (player.votes > MaxVotes){
         PlayerName = player.name;
@@ -609,6 +611,6 @@ Template.gameView.events({
     return VotedOutPlayer;
   },
   IsTie: function () {
-    
+
   }
 });
