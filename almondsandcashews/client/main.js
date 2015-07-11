@@ -563,7 +563,7 @@ Template.gameView.events({
     Players.update(player.PlayerName, {$set: {votes: ++votes}});
     if (AllVotesIn()){
       console.log("ALL VOTES ARE IN");
-      PlayerOut = getVotedOutPlayer();
+      VotedOutPlayer = getVotedOutPlayer();
       if(!IsTie()){
         console.log("NOT A TIE");
       }else{
@@ -590,9 +590,14 @@ Template.gameView.events({
     }
   },
   getVotedOutPlayer: function (){
-    var PlayerVotes = 0; 
-    var VotedOutPlayer = null;
-
+    var MaxVotes = 0; 
+    var PlayerVotedOut = Players.forEach(function(player){
+      if (player.votes > MaxVotes){
+        PlayerName = player.name;
+      }
+      return PlayerName
+    })
+    return VotedOutPlayer;
   },
   IsTie: function () {
     
