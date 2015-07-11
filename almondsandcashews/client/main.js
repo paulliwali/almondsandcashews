@@ -205,6 +205,12 @@ function trackGameState () {
     return;
   }
 
+  if (game.gameMode === "classic"){
+    Session.set("currentView", "startMenu");
+  } else if (game.gameMode === "advanced"){
+    Session.set("currentView", "startMenu");
+  }
+
   if(game.state === "inProgress"){
     Session.set("currentView", "gameView");
   } else if (game.state === "waitingForPlayers") {
@@ -298,6 +304,8 @@ Template.createGame.events({
     var game = generateNewGame();
     var player = generateNewPlayer(game, playerName);
 
+    Games.update(game._id, {$set: {gameMode: gameMode}});
+
     Meteor.subscribe('games', game.accessCode);
 
     Session.set("loading", true);
@@ -307,7 +315,7 @@ Template.createGame.events({
 
       Session.set("gameID", game._id);
       Session.set("playerID", player._id);
-      Session.set("currentView", "lobby");
+      //Session.set("currentView", "gameView");
     });
 
 
