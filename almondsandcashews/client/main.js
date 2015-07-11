@@ -292,6 +292,11 @@ Template.createGame.events({
     GAnalytics.event("game-actions", "newgame");
 
     var playerName = event.target.playerName.value;
+<<<<<<< HEAD
+    var itemName = event.target.itemName.value;
+
+=======
+>>>>>>> 455dacec5404c07350d4700f1ff87ffe23160da3
     if (!playerName) {
       return false;
     }
