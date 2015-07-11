@@ -137,7 +137,9 @@ function generateNewPlayer(game, name){
     name: name,
     item: null,
     isOdd: false,
-    isFirstPlayer: false
+    isFirstPlayer: false,
+    votes: 0,
+    votedOut: false
   };
 
   var playerID = Players.insert(player);
@@ -551,5 +553,43 @@ Template.gameView.events({
       GAnalytics.event("game-actions", "pause");
       Games.update(game._id, {$set: {paused: true, pausedTime: currentServerTime}});
     }
+  },
+  'click .btn-vote': function () {
+    Players.update(player.PlayerName, {$set: {votes: ++votes}});
+    if (AllVotesIn()){
+      console.log("ALL VOTES ARE IN");
+      PlayerOut = getVotedOutPlayer();
+      if(!IsTie()){
+        console.log("NOT A TIE");
+      }else{
+        console.log("TIE HAS OCCURED");
+      }
+    }
+  },
+  AllVotesIn: function (){
+    var VotesNeeded = 0; 
+    Players.forEach(function(player){
+      if (player.votedOut == false){
+        ++VotesNeeded;
+      }
+    })
+    var TotalVotes = 0;
+    TotalVotes = Players.forEach(function(player){
+      TotalVotes = player.votes + TotalVotes;
+    })
+
+    if (TotalVotes == VotesNeeded){
+      return true;
+    }else{
+      return false;
+    }
+  },
+  getVotedOutPlayer: function (){
+    var PlayerVotes = 0; 
+    var VotedOutPlayer = null;
+
+  },
+  IsTie: function () {
+    
   }
 });
