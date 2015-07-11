@@ -205,11 +205,11 @@ function trackGameState () {
     return;
   }
 
-  if (game.gameMode === "classic"){
-    Session.set("currentView", "startMenu");
-  } else if (game.gameMode === "advanced"){
-    Session.set("currentView", "startMenu");
-  }
+  // if (game.gameMode === "classic"){
+  //   Session.set("currentView", "startMenu");
+  // } else if (game.gameMode === "advanced"){
+  //   Session.set("currentView", "startMenu");
+  // }
 
   if(game.state === "inProgress"){
     Session.set("currentView", "gameView");
@@ -296,7 +296,6 @@ Template.createGame.events({
     GAnalytics.event("game-actions", "newgame");
 
     var playerName = event.target.playerName.value;
-    var itemName = event.target.itemName.value;
 
     if (!playerName) {
       return false;
@@ -317,19 +316,14 @@ Template.createGame.events({
 
       Session.set("gameID", game._id);
       Session.set("playerID", player._id);
-      //Session.set("currentView", "gameView");
+
+      // if (gameMode == "classic"){
+      //   Session.set("currentView", "startMenu");
+      // } else if (gameMode == "advanced") {
+      //   Session.set("currentView", "lobby");
+      // }
+      Session.set("currentView", "lobby");
     });
-
-
-    // if (gameMode == "classic"){
-    //   Session.set("currentView", "gameView");
-    //   console.log(gameMode);
-    // } else if (gameMode == "advanced") {
-    //   Session.set("currentView", "gameView");
-    //   console.log(gameMode);
-    // } else {
-    //   Session.set("currentView", "gameView");
-    // }
 
     return false;
   },
