@@ -9,6 +9,8 @@
         "advanced": "Advanced",
         "waiting for players": "Waiting For Players...",
         "access code": "Access code",
+        "category is": "Category is - ",
+        "enter a related item": "Enter a related item",
         "join my almonds and cashews game": "Join my Almonds and Cashews game!",
         "join my spyfall game": "Join my Spyfall game!",
         "start game": "Start Game",
@@ -29,6 +31,7 @@
         "enter an access code": "Enter an access code",
         "invalid access code": "Sorry, no game was found with the access code you provided!",
         "join": "Join",
+        "submit": "Submit",
         "enter your items": "Enter your items",
         "vote greg out": "Vote Greg Out",
         "footer": "Almonds and Cashews is designed by Paul Deng, along with good friends Willy Yang, Brian Phan. It is based on <a href='https://github.com/evanbrumley/spyfall' target='_blank'>Spyfal by Evan Brumley.</a>"

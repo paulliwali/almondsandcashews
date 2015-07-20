@@ -1,0 +1,5 @@
+categories = [
+  'fruit',
+  'countries',
+  'desserts'
+]

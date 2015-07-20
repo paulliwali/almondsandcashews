@@ -90,6 +90,14 @@ function getCurrentPlayer(){
   }
 }
 
+function getCurrentCategory(){
+  var categoryID = Session.get("categoryID");
+
+  if (categoryID) {
+    return Categories.findOne(categoryID);
+  }
+}
+
 function generateAccessCode(){
   var code = "";
   var possible = "abcdefghijklmnopqrstuvwxyz";
@@ -131,6 +139,8 @@ function generateNewGame(){
 // player has a few attributes: gameID, name, role, isSpy, isFirstPlayer
 // add a new attribute - isOdd to indicate the player with the odd item
 // add a new attribute - item to hold the item for the player
+// add a new attribute - votes to hold the number of votes
+// add a new attribute - votedOut to hold boolean value
 function generateNewPlayer(game, name){
   var player = {
     gameID: game._id,
@@ -147,35 +157,80 @@ function generateNewPlayer(game, name){
   return Players.findOne(playerID);
 }
 
+// A random category is choosen from the list of categories in categoies.js
+// This category is created into a Category Collection which will temporarily
+// store all the items inputted by the players
+function generateNewCategory(game, category){
+  var category = {
+    gameID: game._id,
+    category: category,
+    items: [
+      {item: "test1"},
+      {item: "test2"},
+      {item: "test3"}
+    ]
+  };
+
+  var categoryID = Categories.insert(category);
+
+  return Categories.findOne(categoryID);
+}
+
+function getRandomCategory(){
+  var categoryIndex = Math.floor(Math.random() * categories.length);
+  return categories[categoryIndex]
+}
+
 function getRandomItems(){
   var itemIndex = Math.floor(Math.random() * items.length);
   return items[itemIndex]
 }
 
-function assignItems(players, item){
-
-  //Yeah...not very smart but I can't think atm
-  var randomNumber = Math.floor((Math.random() * 10) + 1);
-  if (randomNumber % 2 == 0) {
-    var oddItem = item.itemA;
-    var commonItem = item.itemB;
-  } else {
-    var oddItem = item.itemB;
-    var commonItem = item.itemA;
-  }
-  var item = null;
-
-  players.forEach(function(player){
-    if (!player.isOdd){
-      item = commonItem;
-
-      Players.update(player._id, { $set: {item: item}});
+function assignItems(gameMode, players, item){
+  if (gameMode === "classic") {
+    //Yeah...not very smart but I can't think atm
+    var randomNumber = Math.floor((Math.random() * 10) + 1);
+    if (randomNumber % 2 == 0) {
+      var oddItem = item.itemA;
+      var commonItem = item.itemB;
     } else {
-      item = oddItem;
-
-      Players.update(player._id, { $set: {item: item}});
+      var oddItem = item.itemB;
+      var commonItem = item.itemA;
     }
-  });
+    var item = null;
+
+    players.forEach(function(player){
+      if (!player.isOdd){
+        item = commonItem;
+
+        Players.update(player._id, { $set: {item: item}});
+      } else {
+        item = oddItem;
+
+        Players.update(player._id, { $set: {item: item}});
+      }
+    });
+  } else if (gameMode === "advanced") {
+    // dummie objects for now
+    // Need to take 2 random documents from the Categories object
+    // and assign them to oddItem and commonItem
+    var oddItem = "odd"
+    var commonItem = "even"
+
+    var item = null;
+
+    players.forEach(function(player){
+      if (!player.isOdd){
+        item = commonItem;
+
+        Players.update(player._id, {$set: {item: item}});
+      } else {
+        item = oddItem;
+
+        Players.update(player._id, {$set: {item: item}});
+      }
+    });
+  }
 }
 
 function resetUserState(){
@@ -187,6 +242,7 @@ function resetUserState(){
 
   Session.set("gameID", null);
   Session.set("playerID", null);
+  Session.set("categoryID", null);
 }
 
 function trackGameState () {
@@ -203,20 +259,21 @@ function trackGameState () {
   if (!game || !player){
     Session.set("gameID", null);
     Session.set("playerID", null);
+    Session.set("categoryID", null);
     Session.set("currentView", "startMenu");
     return;
   }
 
-  // if (game.gameMode === "classic"){
-  //   Session.set("currentView", "startMenu");
-  // } else if (game.gameMode === "advanced"){
-  //   Session.set("currentView", "startMenu");
-  // }
-
+  // tracke the state for the game, added new code to look for the
+  // game mode of classic or advanced
   if(game.state === "inProgress"){
     Session.set("currentView", "gameView");
   } else if (game.state === "waitingForPlayers") {
-    Session.set("currentView", "lobby");
+      if(game.mode === "classic"){
+        Session.set("currentView", "lobby");
+      } else if (game.mode === "advanced"){
+        Session.set("currentView", "lobbyAdvanced");
+      }
   }
 }
 
@@ -309,7 +366,17 @@ Template.createGame.events({
 
     Games.update(game._id, {$set: {gameMode: gameMode}});
 
+    if (gameMode == "advanced") {
+      var randomCategory = getRandomCategory();
+      console.log("hello");
+      var category = generateNewCategory(game, randomCategory);
+      console.log(category.category);
+    }
+
     Meteor.subscribe('games', game.accessCode);
+
+    // no clue what this is doing, or if this is necessary
+    Meteor.subscribe('categories', game._id);
 
     Session.set("loading", true);
 
@@ -318,13 +385,16 @@ Template.createGame.events({
 
       Session.set("gameID", game._id);
       Session.set("playerID", player._id);
+      Session.set("categoryID", category._id);
 
-      // if (gameMode == "classic"){
-      //   Session.set("currentView", "startMenu");
-      // } else if (gameMode == "advanced") {
-      //   Session.set("currentView", "lobby");
-      // }
-      Session.set("currentView", "lobby");
+      // conditionals for the 2 game modes
+      if (gameMode == "classic"){
+        Session.set("currentView", "lobby");
+      } else if (gameMode == "advanced") {
+        Session.set("currentView", "lobbyAdvanced");
+      }
+    // old code
+    // Session.set("currentView", "lobby");
     });
 
     return false;
@@ -371,6 +441,7 @@ Template.joinGame.events({
 
         Session.set("gameID", game._id);
         Session.set("playerID", player._id);
+        Session.set("categoryID", category._id);
         Session.set("currentView", "lobby");
       } else {
         FlashMessages.sendError(TAPi18n.__("ui.invalid access code"));
@@ -458,7 +529,7 @@ Template.lobby.events({
       }});
     });
 
-    assignItems(players, item);
+    assignItems("classic", players, item);
 
     // THIS FUNCITON MIGHT NEED TO BE LOOKED AT
     // IMPROVE PERFORMANCE OR THE PROBLEM OF CERTAIN PLAYERS GETTING ODD ONLY
@@ -485,6 +556,105 @@ Template.lobby.rendered = function (event) {
   qrcodesvg.draw();
 };
 
+Template.lobbyAdvanced.helpers({
+  game: function () {
+    return getCurrentGame();
+  },
+  accessLink: function () {
+    return getAccessLink();
+  },
+  player: function () {
+    return getCurrentPlayer();
+  },
+  category: function () {
+    return getCurrentCategory();
+  },
+  players: function () {
+    var game = getCurrentGame();
+    var currentPlayer = getCurrentPlayer();
+    var currentCategory = getCurrentCategory();
+
+    if (!game) {
+      return null;
+    }
+
+    var players = Players.find({'gameID': game._id}, {'sort': {'createdAt': 1}}).fetch();
+
+    players.forEach(function(player){
+      if (player._id === currentPlayer._id){
+        player.isCurrent = true;
+      }
+    });
+
+    return players;
+  }
+});
+
+Template.lobbyAdvanced.events({
+  'click .btn-leave': leaveGame,
+  'click .btn-start': function () {
+    GAnalytics.event("game-actions", "gamestart");
+
+    var game = getCurrentGame();
+    var item = getRandomItems();
+    var players = Players.find({gameID: game._id});
+    var localEndTime = moment().add(game.lengthInMinutes, 'minutes');
+    var gameEndTime = TimeSync.serverTime(localEndTime);
+    var oddIndex = Math.floor(Math.random() * players.count());
+    var firstPlayerIndex = Math.floor(Math.random() * players.count());
+
+    players.forEach(function(player, index){
+      Players.update(player._id, {$set: {
+        isOdd: index == oddIndex,
+        isFirstPlayer: index === firstPlayerIndex
+      }});
+    });
+
+    assignItems("advanced", players, item);
+
+    // THIS FUNCITON MIGHT NEED TO BE LOOKED AT
+    // IMPROVE PERFORMANCE OR THE PROBLEM OF CERTAIN PLAYERS GETTING ODD ONLY
+    Games.update(game._id, {$set: {state: 'inProgress', location: location, endTime: gameEndTime, paused: false, pausedTime: null}});
+  },
+  'click .btn-toggle-qrcode': function () {
+    $(".qrcode-container").toggle();
+  },
+  'click .btn-remove-player': function (event) {
+    var playerID = $(event.currentTarget).data('player-id');
+    Players.remove(playerID);
+  },
+  'click .btn-edit-player': function (event) {
+    var game = getCurrentGame();
+    resetUserState();
+    Session.set('urlAccessCode', game.accessCode);
+    Session.set('currentView', 'joinGame');
+  },
+  'submit #category-input': function (event) {
+    var category = getCurrentCategory();
+
+    event.preventDefault();
+
+    var categoryItem = event.target.categoryItem.value;
+    categoryItem = categoryItem.trim();
+    categoryItem = categoryItem.toLowerCase();
+
+    // Add code here to edit the Mongo database for the category's item list
+    // readup on $push on MongoDB to see if this is correct
+    Categories.update(category._id, {$push: {
+      items: {item: categoryItem}
+    }});
+
+    event.target.categoryItem.value = "";
+    return false;
+  }
+});
+
+Template.lobbyAdvanced.rendered = function (event) {
+  var url = getAccessLink();
+  var qrcodesvg = new Qrcodesvg(url, "qrcode", 250);
+  qrcodesvg.draw();
+};
+
 function getTimeRemaining(){
   var game = getCurrentGame();
   var localEndTime = game.endTime - TimeSync.serverOffset();
@@ -506,6 +676,7 @@ function getTimeRemaining(){
 Template.gameView.helpers({
   game: getCurrentGame,
   player: getCurrentPlayer,
+  category: getCurrentCategory,
   players: function () {
     var game = getCurrentGame();
 
