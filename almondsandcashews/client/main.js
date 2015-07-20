@@ -167,7 +167,8 @@ function generateNewCategory(game, category){
     items: [
       {item: "test1"},
       {item: "test2"},
-      {item: "test3"}
+      {item: "test3"},
+      {item: "test4"}
     ]
   };
 
@@ -366,13 +367,6 @@ Template.createGame.events({
 
     Games.update(game._id, {$set: {gameMode: gameMode}});
 
-    if (gameMode == "advanced") {
-      var randomCategory = getRandomCategory();
-      console.log("hello");
-      var category = generateNewCategory(game, randomCategory);
-      console.log(category.category);
-    }
-
     Meteor.subscribe('games', game.accessCode);
 
     // no clue what this is doing, or if this is necessary
@@ -385,10 +379,17 @@ Template.createGame.events({
 
       Session.set("gameID", game._id);
       Session.set("playerID", player._id);
-      Session.set("categoryID", category._id);
 
+      if (gameMode == "advanced") {
+        var randomCategory = getRandomCategory();
+        var category = generateNewCategory(game, randomCategory);
+        Session.set("categoryID", category._id);
+      }
+      
       // conditionals for the 2 game modes
       if (gameMode == "classic"){
+        console.log("hello");
+        console.log(gameMode);
         Session.set("currentView", "lobby");
       } else if (gameMode == "advanced") {
         Session.set("currentView", "lobbyAdvanced");

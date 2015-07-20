@@ -227,7 +227,9 @@
 
   <ul class="location-list">
     <div class="location-name">
-      {{_ category.items }}
+      {{#each category.items }}
+        {{_ item}}
+      {{/each}}
     </div>
   </ul>
 

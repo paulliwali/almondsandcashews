@@ -1,9 +1,6 @@
-# Meteor - Almonds & Cashews
+# Meteor - Almond & Cashews
 
-A fun social game where one player is a **cashew**, and other players are **almonds** who are trying to find the cashew and vote it out! 
-
-The game is live on [almondsandcashews.meteor.com](http://almondsandcashews.meteor.com/).
-
+A fun social game where one player is a **almond**, and other players are **cashews** who are trying to find the almond and vote it out!
 
 ## Disclaimer
 
@@ -17,18 +14,18 @@ This is a a fork of [Spyfall](https://github.com/evanbrumley/spyfall). I modifie
 
 Each player says a sentence about their item, this sentence has to be factual.
 
-	"I am edible" "test commit"
+	"I am edible"
 
-One round of AnC is complete when all players has said a sentence about their item. The players publicly discuss and vote for a player to be eliminated for being the **cashew**. For games of various sizes refer to the table below for voting rounds.
+One round of AnC is complete when all players has said a sentence about their item. The players publicly discuss and vote for a player to be eliminated for being the **almond**. For games of various sizes refer to the table below for voting rounds.
 
 Number of Players | Rounds of Gameplay
 ------------------|------------------
 3-6 Players       |3 Rounds of Talking, Vote, 1 Round of Talking, Vote, etc
-------------------|------------------
-6-Players         | Blah
+6-Players         |2 Rounds of Talking, Vote, 1 Round of Talking, Vote, etc
 
 
-When the **cashew** has been successfully voted out, it has a chance of redemption by guessing what the others are. If the **cashew** is successful in guessing the others are **almonds**, then the **cashew** wins; otherwise, the **almonds** wins.
+The **almond** loses when it is voted out by the **cashews**. The **almond** wins when
+only 1 **cashew** is left with the **almond**.
 
 *Tips:*
 
