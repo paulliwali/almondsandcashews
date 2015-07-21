@@ -188,6 +188,7 @@ function getRandomItems(){
 }
 
 function assignItems(gameMode, players, item){
+  // check for classic mode
   if (gameMode === "classic") {
     //Yeah...not very smart but I can't think atm
     var randomNumber = Math.floor((Math.random() * 10) + 1);
@@ -212,11 +213,25 @@ function assignItems(gameMode, players, item){
       }
     });
   } else if (gameMode === "advanced") {
-    // dummie objects for now
-    // Need to take 2 random documents from the Categories object
-    // and assign them to oddItem and commonItem
-    var oddItem = "odd"
-    var commonItem = "even"
+    console.log("wrong assignItem() call for advnaced mode");
+  }
+}
+
+function assignAdvancedItems(gameMode, players, category){
+  // check advanced mode
+  if(gameMode == "advanced"){
+    oddItem = null;
+    commonItem = null;
+
+    // check the two items are not identical
+    while (oddItem == commonItem){
+      var choosenCategory = Categories.find().fetch();
+      var itemsArray = choosenCategory[0].items;
+      var randomIndex = Math.floor(Math.random() * itemsArray.length);
+      var oddItem = itemsArray[randomIndex].item;
+      var randomIndexTwo = Math.floor(Math.random() * itemsArray.length);
+      var commonItem = itemsArray[randomIndexTwo].item;
+    }
 
     var item = null;
 
@@ -231,6 +246,8 @@ function assignItems(gameMode, players, item){
         Players.update(player._id, {$set: {item: item}});
       }
     });
+  } else if(gameMode == "classic") {
+    console.log("wrong assignAdvancedItems() call for normal mode");
   }
 }
 
@@ -385,11 +402,9 @@ Template.createGame.events({
         var category = generateNewCategory(game, randomCategory);
         Session.set("categoryID", category._id);
       }
-      
+
       // conditionals for the 2 game modes
       if (gameMode == "classic"){
-        console.log("hello");
-        console.log(gameMode);
         Session.set("currentView", "lobby");
       } else if (gameMode == "advanced") {
         Session.set("currentView", "lobbyAdvanced");
@@ -440,10 +455,18 @@ Template.joinGame.events({
         Meteor.subscribe('players', game._id);
         player = generateNewPlayer(game, playerName);
 
+        // Again, not sure if this is needed or what it does
+        Meteor.subscribe("categories", game._id);
+
         Session.set("gameID", game._id);
         Session.set("playerID", player._id);
-        Session.set("categoryID", category._id);
-        Session.set("currentView", "lobby");
+        if (game.gameMode == "classic"){
+          Session.set("currentView", "lobby");
+        } else if (game.gameMode == "advanced") {
+          var category = Categories.find({'gameID': game._id}).fetch();
+          Session.set("categoryID", category._id);
+          Session.set("currentView", "lobbyAdvanced");
+        }
       } else {
         FlashMessages.sendError(TAPi18n.__("ui.invalid access code"));
         GAnalytics.event("game-actions", "invalidcode");
@@ -597,7 +620,7 @@ Template.lobbyAdvanced.events({
     GAnalytics.event("game-actions", "gamestart");
 
     var game = getCurrentGame();
-    var item = getRandomItems();
+    var category = getCurrentCategory();
     var players = Players.find({gameID: game._id});
     var localEndTime = moment().add(game.lengthInMinutes, 'minutes');
     var gameEndTime = TimeSync.serverTime(localEndTime);
@@ -611,7 +634,7 @@ Template.lobbyAdvanced.events({
       }});
     });
 
-    assignItems("advanced", players, item);
+    assignAdvancedItems("advanced", players, category);
 
     // THIS FUNCITON MIGHT NEED TO BE LOOKED AT
     // IMPROVE PERFORMANCE OR THE PROBLEM OF CERTAIN PLAYERS GETTING ODD ONLY
