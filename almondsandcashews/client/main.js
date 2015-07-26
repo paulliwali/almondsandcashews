@@ -155,6 +155,7 @@ function generateNewPlayer(game, name){
     isOdd: false,
     isFirstPlayer: false,
     votes: 0,
+    voted: false,
     votedOut: false
   };
 
@@ -749,19 +750,31 @@ Template.gameView.events({
   'click .btn-vote': function () {
     // get the playerID instead to find it quicker, instead of a loop...DONE
     // meteor display messages
-    // add function to limit one click per vote round
+    // add function to limit one click per vote round..DONE
     // add function to keep track all players are voted -> vote out the max player
     // deal with ties
     // remove player from play, but not from game (authorization?)
-    var votedPlayerID = getRadioValue('selectedPlayer');
-    var game = getCurrentGame;
+    var game = getCurrentGame();
+    var currentPlayer = getCurrentPlayer();
 
-    Players.update(votedPlayerID, { $inc: {votes: 1}});
+    if (!currentPlayer.voted) {
+          var votedPlayerID = getRadioValue('selectedPlayer');
+          Players.update(votedPlayerID, { $inc: {votes: 1}});
 
-    console.log("testing - votebutton");
-    console.log(votedPlayerID);
-    console.log(Players.find().fetch());
-    console.log(Players.findOne(votedPlayerID));
+          console.log("testing - votebutton");
+          console.log(votedPlayerID);
+          console.log(Players.find().fetch());
+          console.log(Players.findOne(votedPlayerID));
+
+          // set player.voted to true after submitting a vote
+          Players.update(currentPlayer._id, { $set: {voted: true}});
+
+          console.log(currentPlayer._id);
+          console.log(Players.findOne(currentPlayer._id));
+    } else {
+      console.log("Current player has already voted");
+    }
+
   }
 
   //   if (AllVotesIn()){
