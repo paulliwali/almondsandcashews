@@ -758,19 +758,33 @@ Template.gameView.events({
     var currentPlayer = getCurrentPlayer();
 
     if (!currentPlayer.voted) {
-          var votedPlayerID = getRadioValue('selectedPlayer');
-          Players.update(votedPlayerID, { $inc: {votes: 1}});
+      var votedPlayerID = getRadioValue('selectedPlayer');
+      Players.update(votedPlayerID, { $inc: {votes: 1}});
 
-          console.log("testing - votebutton");
-          console.log(votedPlayerID);
-          console.log(Players.find().fetch());
-          console.log(Players.findOne(votedPlayerID));
+      console.log("testing - votebutton");
+      console.log(votedPlayerID);
+      console.log(Players.find().fetch());
+      console.log(Players.findOne(votedPlayerID));
 
-          // set player.voted to true after submitting a vote
-          Players.update(currentPlayer._id, { $set: {voted: true}});
+      // set player.voted to true after submitting a vote
+      Players.update(currentPlayer._id, { $set: {voted: true}});
 
-          console.log(currentPlayer._id);
-          console.log(Players.findOne(currentPlayer._id));
+      console.log(currentPlayer._id);
+      console.log(Players.findOne(currentPlayer._id));
+
+      console.log(Players.find().count());
+
+      var majorityVote = Players.find().count();
+      majorityVote = majorityVote / 2; 
+
+      if(Players.findOne(votedPlayerID).votes > majorityVote)
+      {
+        var player = Players.findOne(votedPlayerID)
+        Players.remove(player._id);
+        Session.set("playerID", null);
+      }
+
+
     } else {
       console.log("Current player has already voted");
     }
