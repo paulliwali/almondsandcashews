@@ -1,7 +1,6 @@
 {
     "ui": {
-        "welcome to almonds and cashews": "Welcome to Almonds and Cashews",
-        "welcome to spyfall": "Welcome to Spyfall",
+        "welcome to almond and cashews": "Welcome to Almond and Cashews",
         "new game": "New Game",
         "join game": "Join Game",
         "choose your game mode": "Choose Your Game Mode",
@@ -10,20 +9,14 @@
         "waiting for players": "Waiting For Players...",
         "access code": "Access code",
         "category is": "Category is - ",
-        "enter a related item": "Enter a related item",
-        "join my almonds and cashews game": "Join my Almonds and Cashews game!",
-        "join my spyfall game": "Join my Spyfall game!",
+        "enter a related item": "Enter a Related Item",
+        "join my almond and cashews game": "Join my Almond and Cashews game!",
         "start game": "Start Game",
         "leave game": "Leave Game",
         "show hide": "show/hide",
-        "you are the spy": "You are the spy!",
-        "you are not the spy": "You are <strong>not</strong> the spy!",
-        "the location": "The location",
-        "your role": "Your role",
         "your item": "Your item",
         "players": "Players",
         "first": "1<span>st</span>",
-        "location reference": "Location Reference",
         "end game": "End Game",
         "enter your name": "Enter your name",
         "create game": "Create",
@@ -32,9 +25,8 @@
         "invalid access code": "Sorry, no game was found with the access code you provided!",
         "join": "Join",
         "submit": "Submit",
-        "enter your items": "Enter your items",
         "vote greg out": "Vote Greg Out",
-        "footer": "Almond and Cashews is designed by Paul Deng, along with good friends Willy Yang, Brian Phan. It is based on <a href='https://github.com/evanbrumley/spyfall' target='_blank'>Spyfal by Evan Brumley.</a>"
+        "footer": "Almond and Cashews is designed by Paul Deng, along with good friends Willy Yang & Brian Phan. It is based on <a href='https://github.com/evanbrumley/spyfall' target='_blank'>Spyfal by Evan Brumley.</a>"
     },
     "categories": {
         "fruit": "Fruit",

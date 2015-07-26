@@ -28,7 +28,7 @@
 
 <template name="startMenu">
   <div class="main-menu">
-    <h4>{{_ "ui.welcome to almonds and cashews" }}</h4>
+    <h4>{{_ "ui.welcome to almond and cashews" }}</h4>
 
     <hr>
 
@@ -58,7 +58,7 @@
 
     <span class="access-button-separator"></span>
 
-    <a class="access-button btn-send-access-code-email" href='mailto:?subject={{_ "ui.join my almonds and cashews game" }}&body={{ accessLink }}'>
+    <a class="access-button btn-send-access-code-email" href='mailto:?subject={{_ "ui.join my almond and cashews game" }}&body={{ accessLink }}'>
       <i class="fa fa-envelope-o"></i>
     </a>
   </div>
@@ -114,7 +114,7 @@
 
     <span class="access-button-separator"></span>
 
-    <a class="access-button btn-send-access-code-email" href='mailto:?subject={{_ "ui.join my almonds and cashews game" }}&body={{ accessLink }}'>
+    <a class="access-button btn-send-access-code-email" href='mailto:?subject={{_ "ui.join my almond and cashews game" }}&body={{ accessLink }}'>
       <i class="fa fa-envelope-o"></i>
     </a>
   </div>
@@ -246,7 +246,7 @@
   <ul class="location-list">
     {{#each players }}
       <label>
-        <input id= "selected-player" name="selectedPlayer" class="location-name" type="radio" value="{{ _name }}" > {{name}}
+        <input id="selected-player" name="selectedPlayer" class="location-name" type="radio" value="{{ _id }}" > {{name}}
       </label>
     {{/each}}
   </ul>
@@ -265,7 +265,7 @@
     {{#if isLoading }}
       <span class="spinner"></span>
     {{else}}
-      {{_ "ui.welcome to almonds and cashews" }}
+      {{_ "ui.welcome to almond and cashews" }}
     {{/if}}
   </h4>
 
@@ -293,7 +293,7 @@
     {{#if isLoading }}
       <span class="spinner"></span>
     {{else}}
-      {{_ "ui.welcome to almonds and cashews" }}
+      {{_ "ui.welcome to almond and cashews" }}
     {{/if}}
   </h4>
 

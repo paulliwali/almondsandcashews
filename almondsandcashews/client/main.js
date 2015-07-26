@@ -747,58 +747,63 @@ Template.gameView.events({
     }
   },
   'click .btn-vote': function () {
-    var VotedPlayer = getRadioValue("selected-player");
+    // get the playerID instead to find it quicker, instead of a loop...DONE
+    // meteor display messages
+    // add function to limit one click per vote round
+    // add function to keep track all players are voted -> vote out the max player
+    // deal with ties
+    // remove player from play, but not from game (authorization?)
+    var votedPlayerID = getRadioValue('selectedPlayer');
+    var game = getCurrentGame;
 
-    // Update player votes here.
-    players.forEach(function(player){
-      if(player.name == VotedPlayer){
-        player.votes = player.votes + 1;
+    Players.update(votedPlayerID, { $inc: {votes: 1}});
 
-        // Need to change player.votes into the proper parameter
-        Players.update(player.votes, { $set: {votes: player.votes}});
-      }
-    });
-
-    if (AllVotesIn()){
-      console.log("ALL VOTES ARE IN");
-      VotedOutPlayer = getVotedOutPlayer();
-      if(!IsTie()){
-        console.log("NOT A TIE");
-      }else{
-        console.log("TIE HAS OCCURED");
-      }
-    }
-  },
-  AllVotesIn: function (){
-    var VotesNeeded = 0;
-    Players.forEach(function(player){
-      if (player.votedOut == false){
-        ++VotesNeeded;
-      }
-    })
-
-    var TotalVotes = 0;
-    TotalVotes = Players.forEach(function(player){
-      TotalVotes = player.votes + TotalVotes;
-    })
-
-    if (TotalVotes == VotesNeeded){
-      return true;
-    }else{
-      return false;
-    }
-  },
-  getVotedOutPlayer: function (){
-    var MaxVotes = 0;
-    var PlayerVotedOut = Players.forEach(function(player){
-      if (player.votes > MaxVotes){
-        PlayerName = player.name;
-      }
-      return PlayerName
-    })
-    return VotedOutPlayer;
-  },
-  IsTie: function () {
-
+    console.log("testing - votebutton");
+    console.log(votedPlayerID);
+    console.log(Players.find().fetch());
+    console.log(Players.findOne(votedPlayerID));
   }
+
+  //   if (AllVotesIn()){
+  //     console.log("ALL VOTES ARE IN");
+  //     VotedOutPlayer = getVotedOutPlayer();
+  //     if(!IsTie()){
+  //       console.log("NOT A TIE");
+  //     }else{
+  //       console.log("TIE HAS OCCURED");
+  //     }
+  //   }
+  // },
+  // AllVotesIn: function (){
+  //   var VotesNeeded = 0;
+  //   Players.forEach(function(player){
+  //     if (player.votedOut == false){
+  //       ++VotesNeeded;
+  //     }
+  //   })
+  //
+  //   var TotalVotes = 0;
+  //   TotalVotes = Players.forEach(function(player){
+  //     TotalVotes = player.votes + TotalVotes;
+  //   })
+  //
+  //   if (TotalVotes == VotesNeeded){
+  //     return true;
+  //   }else{
+  //     return false;
+  //   }
+  // },
+  // getVotedOutPlayer: function (){
+  //   var MaxVotes = 0;
+  //   var PlayerVotedOut = Players.forEach(function(player){
+  //     if (player.votes > MaxVotes){
+  //       PlayerName = player.name;
+  //     }
+  //     return PlayerName
+  //   })
+  //   return VotedOutPlayer;
+  // },
+  // IsTie: function () {
+  //
+  // }
 });
