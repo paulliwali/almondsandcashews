@@ -1,5 +1,7 @@
 categories = [
-  'fruit',
-  'countries',
-  'desserts'
+  'categories.fruit',
+  'categories.countries',
+  'categories.desserts',
+  'categories.chocolate bars',
+  'categories.icecream flavours'
 ]

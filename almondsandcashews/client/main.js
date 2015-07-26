@@ -286,10 +286,26 @@ function leaveGame () {
   Session.set("currentView", "startMenu");
   Players.remove(player._id);
 
+  Session.set("playerID", null);
+}
+
+function endGame () {
+  GAnalytics.event("game-actions", "gameend");
+  var game = getCurrentGame();
+  var players = Players.find({'gameID': game._id}, {'sort': {'createdAt': 1}}).fetch();
+
+  Session.set("currentView", "startMenu");
+
+  players.forEach(function(player){
+    Players.remove(player._id);
+  });
   // Put code here to clean the items list and category name
+  Games.update(game._id, {$set: {state: 'waitingForPlayers'}});
   Games.update(game._id, {$set: {category: null}});
+  Games.update(game._id, {$set: {items: []}});
 
   Session.set("playerID", null);
+  Session.set("gameID", null);
 }
 
 initUserLanguage();
@@ -713,12 +729,7 @@ Template.gameView.helpers({
 
 Template.gameView.events({
   'click .btn-leave': leaveGame,
-  'click .btn-end': function () {
-    GAnalytics.event("game-actions", "gameend");
-
-    var game = getCurrentGame();
-    Games.update(game._id, {$set: {state: 'waitingForPlayers'}});
-  },
+  'click .btn-end': endGame,
   'click .btn-toggle-status': function () {
     $(".status-container-content").toggle();
   },

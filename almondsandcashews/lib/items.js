@@ -1,14 +1,14 @@
 items = [
   {
-    itemA: 'almond',
-    itemB: 'cashew'
+    itemA: 'item.almond',
+    itemB: 'item.cashew'
   },
   {
-    itemA: 'cake',
-    itemB: 'cupcake'
+    itemA: 'item.cake',
+    itemB: 'item.cupcake'
   },
   {
-    itemA: 'cookies',
-    itemB: 'banana bread'
+    itemA: 'item.cookies',
+    itemB: 'item.banana bread'
   }
 ]
