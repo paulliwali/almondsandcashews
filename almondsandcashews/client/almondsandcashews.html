@@ -130,7 +130,7 @@
   <hr>
 
   <div class="advanced-mode-input-container">
-      <h5>{{_ "ui.category is" }}{{_ category.category }} </h5>
+      <h5>{{_ "ui.category is" }}{{_ game.category }} </h5>
       <form id="category-input">
         <div>
           <input autocorrect="off" autocapitalize="off" type="text" id="category-item" name="categoryItem" placeholder='{{_ "ui.enter a related item" }}'>
@@ -234,7 +234,7 @@
 
   <ul class="location-list">
     <div class="location-name">
-      {{#each category.items }}
+      {{#each game.items }}
         {{_ item}}
       {{/each}}
     </div>

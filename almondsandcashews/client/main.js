@@ -91,10 +91,10 @@ function getCurrentPlayer(){
 }
 
 function getCurrentCategory(){
-  var categoryID = Session.get("categoryID");
+  var gameID = Session.get("gameID");
 
-  if (categoryID) {
-    return Categories.findOne(categoryID);
+  if (gameID){
+    return Games.findOne(gameID).category;
   }
 }
 
@@ -124,6 +124,13 @@ function generateNewGame(){
     state: "waitingForPlayers",
     gameMode: null,
     location: null,
+    category: null,
+    items: [
+      {item: "test1"},
+      {item: "test2"},
+      {item: "test3"},
+      {item: "test4"}
+    ],
     lengthInMinutes: 8,
     endTime: null,
     paused: false,
@@ -131,9 +138,8 @@ function generateNewGame(){
   };
 
   var gameID = Games.insert(game);
-  game = Games.findOne(gameID);
 
-  return game;
+  return Games.findOne(gameID);
 }
 
 // player has a few attributes: gameID, name, role, isSpy, isFirstPlayer
@@ -155,26 +161,6 @@ function generateNewPlayer(game, name){
   var playerID = Players.insert(player);
 
   return Players.findOne(playerID);
-}
-
-// A random category is choosen from the list of categories in categoies.js
-// This category is created into a Category Collection which will temporarily
-// store all the items inputted by the players
-function generateNewCategory(game, category){
-  var category = {
-    gameID: game._id,
-    category: category,
-    items: [
-      {item: "test1"},
-      {item: "test2"},
-      {item: "test3"},
-      {item: "test4"}
-    ]
-  };
-
-  var categoryID = Categories.insert(category);
-
-  return Categories.findOne(categoryID);
 }
 
 function getRandomCategory(){
@@ -217,7 +203,7 @@ function assignItems(gameMode, players, item){
   }
 }
 
-function assignAdvancedItems(gameMode, players, category){
+function assignAdvancedItems(gameMode, players, game){
   // check advanced mode
   if(gameMode == "advanced"){
     oddItem = null;
@@ -225,8 +211,8 @@ function assignAdvancedItems(gameMode, players, category){
 
     // check the two items are not identical
     while (oddItem == commonItem){
-      var choosenCategory = Categories.find().fetch();
-      var itemsArray = choosenCategory[0].items;
+      var choosenCategory = game.category;
+      var itemsArray = game.items;
       var randomIndex = Math.floor(Math.random() * itemsArray.length);
       var oddItem = itemsArray[randomIndex].item;
       var randomIndexTwo = Math.floor(Math.random() * itemsArray.length);
@@ -260,7 +246,6 @@ function resetUserState(){
 
   Session.set("gameID", null);
   Session.set("playerID", null);
-  Session.set("categoryID", null);
 }
 
 function trackGameState () {
@@ -277,12 +262,11 @@ function trackGameState () {
   if (!game || !player){
     Session.set("gameID", null);
     Session.set("playerID", null);
-    Session.set("categoryID", null);
     Session.set("currentView", "startMenu");
     return;
   }
 
-  // tracke the state for the game, added new code to look for the
+  // track the state for the game, added new code to look for the
   // game mode of classic or advanced
   if(game.state === "inProgress"){
     Session.set("currentView", "gameView");
@@ -301,6 +285,9 @@ function leaveGame () {
 
   Session.set("currentView", "startMenu");
   Players.remove(player._id);
+
+  // Put code here to clean the items list and category name
+  Games.update(game._id, {$set: {category: null}});
 
   Session.set("playerID", null);
 }
@@ -385,10 +372,6 @@ Template.createGame.events({
     Games.update(game._id, {$set: {gameMode: gameMode}});
 
     Meteor.subscribe('games', game.accessCode);
-
-    // no clue what this is doing, or if this is necessary
-    Meteor.subscribe('categories', game._id);
-
     Session.set("loading", true);
 
     Meteor.subscribe('players', game._id, function onReady(){
@@ -399,8 +382,16 @@ Template.createGame.events({
 
       if (gameMode == "advanced") {
         var randomCategory = getRandomCategory();
-        var category = generateNewCategory(game, randomCategory);
-        Session.set("categoryID", category._id);
+        Games.update(game._id, {$set: {category: randomCategory}});
+
+        //TEST CODE ---------------------------
+        // test if the collection Games contains the right category
+        console.log(
+                    Games.findOne(game._id),
+                    Games.findOne(game._id).category,
+                    Games.findOne(game._id).items
+                  );
+        // ------------------------------------
       }
 
       // conditionals for the 2 game modes
@@ -409,8 +400,6 @@ Template.createGame.events({
       } else if (gameMode == "advanced") {
         Session.set("currentView", "lobbyAdvanced");
       }
-    // old code
-    // Session.set("currentView", "lobby");
     });
 
     return false;
@@ -445,31 +434,26 @@ Template.joinGame.events({
     Session.set("loading", true);
 
     Meteor.subscribe('games', accessCode, function onReady(){
-      Session.set("loading", false);
-
       var game = Games.findOne({
         accessCode: accessCode
       });
 
       if (game) {
+
         Meteor.subscribe('players', game._id);
+
         player = generateNewPlayer(game, playerName);
-
-        // Again, not sure if this is needed or what it does
-        Meteor.subscribe("categories", game._id);
-
         Session.set("gameID", game._id);
         Session.set("playerID", player._id);
+
         if (game.gameMode == "classic"){
           Session.set("currentView", "lobby");
         } else if (game.gameMode == "advanced") {
-          var category = Categories.find({'gameID': game._id}).fetch();
-          Session.set("categoryID", category._id);
           Session.set("currentView", "lobbyAdvanced");
+        } else {
+          FlashMessages.sendError(TAPi18n.__("ui.invalid access code"));
+          GAnalytics.event("game-actions", "invalidcode");
         }
-      } else {
-        FlashMessages.sendError(TAPi18n.__("ui.invalid access code"));
-        GAnalytics.event("game-actions", "invalidcode");
       }
     });
 
@@ -484,7 +468,7 @@ Template.joinGame.events({
 Template.joinGame.helpers({
   isLoading: function() {
     return Session.get('loading');
-  }
+  },
 });
 
 
@@ -596,7 +580,6 @@ Template.lobbyAdvanced.helpers({
   players: function () {
     var game = getCurrentGame();
     var currentPlayer = getCurrentPlayer();
-    var currentCategory = getCurrentCategory();
 
     if (!game) {
       return null;
@@ -634,7 +617,7 @@ Template.lobbyAdvanced.events({
       }});
     });
 
-    assignAdvancedItems("advanced", players, category);
+    assignAdvancedItems("advanced", players, game);
 
     // THIS FUNCITON MIGHT NEED TO BE LOOKED AT
     // IMPROVE PERFORMANCE OR THE PROBLEM OF CERTAIN PLAYERS GETTING ODD ONLY
@@ -654,8 +637,7 @@ Template.lobbyAdvanced.events({
     Session.set('currentView', 'joinGame');
   },
   'submit #category-input': function (event) {
-    var category = getCurrentCategory();
-
+    var game = getCurrentGame();
     event.preventDefault();
 
     var categoryItem = event.target.categoryItem.value;
@@ -664,7 +646,7 @@ Template.lobbyAdvanced.events({
 
     // Add code here to edit the Mongo database for the category's item list
     // readup on $push on MongoDB to see if this is correct
-    Categories.update(category._id, {$push: {
+    Games.update(game._id, {$push: {
       items: {item: categoryItem}
     }});
 
