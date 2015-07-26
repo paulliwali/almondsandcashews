@@ -754,6 +754,7 @@ Template.gameView.events({
     // add function to keep track all players are voted -> vote out the max player
     // deal with ties
     // remove player from play, but not from game (authorization?)
+
     var game = getCurrentGame();
     var currentPlayer = getCurrentPlayer();
 
@@ -782,14 +783,22 @@ Template.gameView.events({
         var player = Players.findOne(votedPlayerID)
         Players.remove(player._id);
         Session.set("playerID", null);
-      }
 
+        if(currentPlayer._id == player._id)
+          {
+             GAnalytics.event("game-actions", "gameleave");
+              var player = getCurrentPlayer();
+              Session.set("currentView", "startMenu");
+              Session.set("playerID", null);
+          }
+      }
 
     } else {
       console.log("Current player has already voted");
     }
 
   }
+
 
   //   if (AllVotesIn()){
   //     console.log("ALL VOTES ARE IN");
