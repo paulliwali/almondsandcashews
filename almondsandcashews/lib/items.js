@@ -16,10 +16,6 @@ items = [
     itemB: 'item.hundai'
   },
   {
-    itemA: 'item.engineer',
-    itemB: 'item.planner'
-  },
-  {
     itemA: 'item.chinese',
     itemB: 'item.japanese'
   }
