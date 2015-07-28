@@ -13,7 +13,7 @@ items = [
   },
   {
     itemA: 'item.toyota',
-    itemB: 'item.hundai'
+    itemB: 'item.hyundai'
   },
   {
     itemA: 'item.chinese',
