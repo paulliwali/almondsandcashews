@@ -788,10 +788,12 @@ Template.gameView.events({
           FlashMessages.sendWarning("Shoot! That wasn't the odd player.");
         }
         
+        Players.update(votedPlayerID, { $set: {votedOut: true}});
+        console.log(Players.findOne(votedPlayerID).votedOut);
         // Refactored -PD
         // var player = Players.findOne(votedPlayerID)
         // Players.remove(player._id);
-        Players.remove(votedPlayerID);
+        //Players.remove(votedPlayerID);
 
         // I don't think this code should be here -PD
         // Session.set("playerID", null);

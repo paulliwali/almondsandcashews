@@ -178,6 +178,7 @@
 
   {{> flashMessages }}
 
+  {{#unless player.votedOut }}
   <div class="status-container">
     <button class="btn-toggle-status">{{_ "ui.show hide" }}</button>
 
@@ -263,6 +264,13 @@
     <button class="btn-leave">{{_ "ui.leave game" }}</button>
     <button class="btn-vote">{{_ "ui.vote greg out" }}</button>
   </div>
+
+  {{else}}
+    <div class="randomblock">
+        <h4>You are voted out of the game. Waiting for next game to start.</h4>
+    </div>
+  {{/unless}}
+
 </template>
 
 <template name="createGame">
