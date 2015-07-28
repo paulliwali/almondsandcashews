@@ -153,7 +153,8 @@ function generateNewPlayer(game, name){
     isFirstPlayer: false,
     votes: 0,
     voted: false,
-    votedOut: false
+    votedOut: false,
+    tempHide: false
   };
 
   var playerID = Players.insert(player);
@@ -756,7 +757,7 @@ Template.gameView.events({
     var game = getCurrentGame();
     var currentPlayer = getCurrentPlayer();
 
-    if (!currentPlayer.voted) {
+    if (!currentPlayer.voted ) {
       var votedPlayerID = getRadioValue('selectedPlayer');
       Players.update(votedPlayerID, { $inc: {votes: 1}});
 
@@ -773,12 +774,32 @@ Template.gameView.events({
 
       console.log(Players.find().count());
 
-      // Refactored -PD
       var majorityVote = Players.find().count() / 2;
-      // majorityVote = majorityVote / 2;
+      var mySum = Players.find().fetch();
+      var numVotes=0;
+      var largestVote=0;
 
-      if(Players.findOne(votedPlayerID).votes > majorityVote)
-      {
+      for (var i=0; i<Players.find().count();i++){
+        numVotes += mySum[i].votes;
+        if (mySum[i].votes>largestVote)
+          largestVote = mySum[i].votes;
+
+        //figure out less than equal or less than only 
+        if (numVotes == Players.find().count() && Players.findOne(votedPlayerID).votes <= majorityVote) {
+          for(var j=0; j<Players.find().count();j++) {
+            if (mySum[j].votes == largestVote){
+              // will need better way of pointing out who should have to be revoted
+              Players.update(mySum[j]._id, { $set: {votedOut: true}});
+              console.log("Who's getting revoted: ")
+              console.log(mySum[j].name);
+            } else {
+              Players.update(mySum[j]._id, { $set: {votedOut: false}});
+            }
+          }
+        }
+      }
+      
+      if(Players.findOne(votedPlayerID).votes > majorityVote) {
         // flashmessages for the voted player
         if(Players.findOne(votedPlayerID).isOdd) {
           console.log("Great!");
@@ -790,33 +811,17 @@ Template.gameView.events({
         
         Players.update(votedPlayerID, { $set: {votedOut: true}});
         console.log(Players.findOne(votedPlayerID).votedOut);
-        // Refactored -PD
-        // var player = Players.findOne(votedPlayerID)
-        // Players.remove(player._id);
-        //Players.remove(votedPlayerID);
 
-        // I don't think this code should be here -PD
-        // Session.set("playerID", null);
-
-
-
-        if(currentPlayer._id == votedPlayerID)
-          {
+        if(currentPlayer._id == votedPlayerID){
              GAnalytics.event("game-actions", "gameleave");
-              // Not needed - PD
-              // var player = getCurrentPlayer();
               Session.set("currentView", "startMenu");
               Session.set("playerID", null);
           }
-      }
-
-    } else {
+      } else {
       console.log("Current player has already voted");
+      }
     }
-
   }
-
-
   //   if (AllVotesIn()){
   //     console.log("ALL VOTES ARE IN");
   //     VotedOutPlayer = getVotedOutPlayer();
