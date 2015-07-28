@@ -81,7 +81,6 @@ function getAccessLink(){
   return Meteor.settings.public.url + game.accessCode + "/";
 }
 
-
 function getCurrentPlayer(){
   var playerID = Session.get("playerID");
 
@@ -123,7 +122,6 @@ function generateNewGame(){
     accessCode: generateAccessCode(),
     state: "waitingForPlayers",
     gameMode: null,
-    location: null,
     category: null,
     items: [
       {item: "test1"},
@@ -142,7 +140,6 @@ function generateNewGame(){
   return Games.findOne(gameID);
 }
 
-// player has a few attributes: gameID, name, role, isSpy, isFirstPlayer
 // add a new attribute - isOdd to indicate the player with the odd item
 // add a new attribute - item to hold the item for the player
 // add a new attribute - votes to hold the number of votes
@@ -404,6 +401,7 @@ Template.createGame.events({
         //TEST CODE ---------------------------
         // test if the collection Games contains the right category
         console.log(
+                    "Test - categories are correctly loaded",
                     Games.findOne(game._id),
                     Games.findOne(game._id).category,
                     Games.findOne(game._id).items
@@ -467,10 +465,10 @@ Template.joinGame.events({
           Session.set("currentView", "lobby");
         } else if (game.gameMode == "advanced") {
           Session.set("currentView", "lobbyAdvanced");
-        } else {
-          FlashMessages.sendError(TAPi18n.__("ui.invalid access code"));
-          GAnalytics.event("game-actions", "invalidcode");
         }
+      } else {
+        FlashMessages.sendError(TAPi18n.__("ui.invalid access code"));
+        GAnalytics.event("game-actions", "invalidcode");
       }
     });
 
@@ -775,19 +773,36 @@ Template.gameView.events({
 
       console.log(Players.find().count());
 
-      var majorityVote = Players.find().count();
-      majorityVote = majorityVote / 2; 
+      // Refactored -PD
+      var majorityVote = Players.find().count() / 2;
+      // majorityVote = majorityVote / 2;
 
       if(Players.findOne(votedPlayerID).votes > majorityVote)
       {
-        var player = Players.findOne(votedPlayerID)
-        Players.remove(player._id);
-        Session.set("playerID", null);
+        // flashmessages for the voted player
+        if(Players.findOne(votedPlayerID).isOdd) {
+          console.log("Great!");
+          FlashMessages.sendSuccess("Great! The odd player was voted out!");
+        } else if (!Players.findOne(votedPlayerID).isOdd) {
+          console.log("Drag!");
+          FlashMessages.sendWarning("Shoot! That wasn't the odd player.");
+        }
+        
+        // Refactored -PD
+        // var player = Players.findOne(votedPlayerID)
+        // Players.remove(player._id);
+        Players.remove(votedPlayerID);
 
-        if(currentPlayer._id == player._id)
+        // I don't think this code should be here -PD
+        // Session.set("playerID", null);
+
+
+
+        if(currentPlayer._id == votedPlayerID)
           {
              GAnalytics.event("game-actions", "gameleave");
-              var player = getCurrentPlayer();
+              // Not needed - PD
+              // var player = getCurrentPlayer();
               Session.set("currentView", "startMenu");
               Session.set("playerID", null);
           }

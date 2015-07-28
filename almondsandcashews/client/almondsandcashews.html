@@ -1,6 +1,6 @@
 <head>
   <meta charset="utf-8">
-  <title>Almonds and Cashews</title>
+  <title>Almond and Cashews</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
@@ -11,7 +11,9 @@
   <link rel="stylesheet" href="css/styles.css" type="text/css">
 </head>
 
-<body></body>
+<body>
+
+</body>
 
 <!-- main template -->
 <template name="main">
@@ -171,7 +173,10 @@
 </template>
 
 <template name="gameView">
+
   <h4><a href="#" class="game-countdown {{#if gameFinished }}finished{{/if}} {{#if game.paused }}paused{{/if}}">{{{ timeRemaining }}}</a></h4>
+
+  {{> flashMessages }}
 
   <div class="status-container">
     <button class="btn-toggle-status">{{_ "ui.show hide" }}</button>
