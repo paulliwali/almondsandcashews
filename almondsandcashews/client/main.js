@@ -288,6 +288,31 @@ function leaveGame () {
   Session.set("playerID", null);
 }
 
+function restartGame() {
+  GAnalytics.event("game-actions", "gameend");
+  var game = getCurrentGame();
+  var player = getCurrentPlayer();
+
+  Games.update(game._id, {$set: {state: 'waitingForPlayers'}});
+  Players.update(player._id, { $set: {
+    votedOut: false,
+    dontHide: false,
+    voted: false,
+    votes: 0
+  }});
+
+  if (game.gameMode=="classic"){
+    Session.set("currentView", "lobby");
+  } else if (game.gameMode=="advanced") {
+    var randomCategory = getRandomCategory();
+    Games.update(game._id, {$set: {
+      category: randomCategory,
+      items: []
+    }});
+    Session.set("currentView", "lobbyAdvanced");
+  }
+}
+
 function endGame () {
   GAnalytics.event("game-actions", "gameend");
   var game = getCurrentGame();
@@ -299,9 +324,12 @@ function endGame () {
     Players.remove(player._id);
   });
   // Put code here to clean the items list and category name
-  Games.update(game._id, {$set: {state: 'waitingForPlayers'}});
-  Games.update(game._id, {$set: {category: null}});
-  Games.update(game._id, {$set: {items: []}});
+  Games.update(game._id, {$set: {
+    state: 'waitingForPlayers',
+    gameMode: null,
+    category: null,
+    items: []
+  }});
 
   Session.set("playerID", null);
   Session.set("gameID", null);
@@ -730,6 +758,7 @@ Template.gameView.helpers({
 Template.gameView.events({
   'click .btn-leave': leaveGame,
   'click .btn-end': endGame,
+  'click .btn-restart': restartGame,
   'click .btn-toggle-status': function () {
     $(".status-container-content").toggle();
   },
@@ -800,7 +829,7 @@ Template.gameView.events({
           }
         }
       }
-      
+
       if(Players.findOne(votedPlayerID).votes > majorityVote) {
         // flashmessages for the voted player
         if(Players.findOne(votedPlayerID).isOdd) {
@@ -810,7 +839,7 @@ Template.gameView.events({
           console.log("Drag!");
           FlashMessages.sendWarning("Shoot! That wasn't the odd player.");
         }
-        
+
         Players.update(votedPlayerID, { $set: {votedOut: true}});
         Players.update(votedPlayerID, { $set: {dontHide: false}});
         Players.update(votedPlayerID, { $set: {votes: 0}});
@@ -833,6 +862,3 @@ Template.gameView.events({
     }
   }
 });
-
-
-        
