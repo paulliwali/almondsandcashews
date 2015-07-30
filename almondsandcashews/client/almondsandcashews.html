@@ -268,9 +268,11 @@
   <h5>{{_ "Players - test"}}</h5>
   <ul class="location-list">
     {{#each players }}
-      <label>
-        <input id="selected-player" name="selectedPlayer" class="location-name" type="radio" value="{{ _id }}" > {{name}}
-      </label>
+      {{#if dontHide}}
+        <label>
+          <input id="selected-player" name="selectedPlayer" class="location-name" type="radio" value="{{ _id }}" > {{name}}
+        </label>
+      {{/if}}
     {{/each}}
   </ul>
 
@@ -283,9 +285,15 @@
   </div>
 
   {{else}}
-    <div class="randomblock">
+    {{#if player.dontHide}}
+      <div class="randomblock">
+        <h4>You are temporarily out of the game.</h4>
+      </div>
+    {{else}}
+      <div class="randomblock">
         <h4>You are voted out of the game. Waiting for next game to start.</h4>
-    </div>
+      </div>
+    {{/if}}
   {{/unless}}
 
 </template>
