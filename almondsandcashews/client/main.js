@@ -756,13 +756,23 @@ Template.gameView.events({
     var game = getCurrentGame();
     var currentPlayer = getCurrentPlayer();
 
+    console.log("CHECKING PLAYERS' VOTED STATUS")
+
+    for (var player in Players.find().fetch()){
+      console.log(Players.findOne(player._id).voted);
+      //console.log(Players.findOne(player).votedOut);
+    }
+
     if (!currentPlayer.voted) {
       var votedPlayerID = getRadioValue('selectedPlayer');
       Players.update(votedPlayerID, { $inc: {votes: 1}});
 
       console.log("testing - votebutton");
+      console.log("PLAYER ID");
       console.log(votedPlayerID);
+      console.log("PLAYER FETCH");
       console.log(Players.find().fetch());
+      console.log("VOTED PLAYER OBJ");
       console.log(Players.findOne(votedPlayerID));
 
       // set player.voted to true after submitting a vote
