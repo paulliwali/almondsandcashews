@@ -10,5 +10,13 @@ items = [
   {
     itemA: 'item.cookies',
     itemB: 'item.banana bread'
+  },
+  {
+    itemA: 'item.toyota',
+    itemB: 'item.hyundai'
+  },
+  {
+    itemA: 'item.chinese',
+    itemB: 'item.japanese'
   }
 ]

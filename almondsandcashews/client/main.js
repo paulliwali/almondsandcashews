@@ -153,7 +153,8 @@ function generateNewPlayer(game, name){
     isFirstPlayer: false,
     votes: 0,
     voted: false,
-    votedOut: false
+    votedOut: false,
+    dontHide: true
   };
 
   var playerID = Players.insert(player);
@@ -756,23 +757,13 @@ Template.gameView.events({
     var game = getCurrentGame();
     var currentPlayer = getCurrentPlayer();
 
-    console.log("CHECKING PLAYERS' VOTED STATUS")
-
-    for (var player in Players.find().fetch()){
-      console.log(Players.findOne(player._id).voted);
-      //console.log(Players.findOne(player).votedOut);
-    }
-
-    if (!currentPlayer.voted) {
+    if (!currentPlayer.voted ) {
       var votedPlayerID = getRadioValue('selectedPlayer');
       Players.update(votedPlayerID, { $inc: {votes: 1}});
 
       console.log("testing - votebutton");
-      console.log("PLAYER ID");
       console.log(votedPlayerID);
-      console.log("PLAYER FETCH");
       console.log(Players.find().fetch());
-      console.log("VOTED PLAYER OBJ");
       console.log(Players.findOne(votedPlayerID));
 
       // set player.voted to true after submitting a vote
@@ -780,15 +771,37 @@ Template.gameView.events({
 
       console.log(currentPlayer._id);
       console.log(Players.findOne(currentPlayer._id));
-
       console.log(Players.find().count());
 
-      // Refactored -PD
-      var majorityVote = Players.find().count() / 2;
-      // majorityVote = majorityVote / 2;
+      var majorityVote = Players.find({'dontHide': true}).count() / 2;
+      var mySum = Players.find().fetch();
+      var numVotes=0;
+      var largestVote=0;
 
-      if(Players.findOne(votedPlayerID).votes > majorityVote)
-      {
+      for (var i=0; i<Players.find().count();i++){
+        numVotes += mySum[i].votes;
+        if (mySum[i].votes>largestVote)
+          largestVote = mySum[i].votes;
+
+        if (numVotes == Players.find().count() && Players.findOne(votedPlayerID).votes <= majorityVote) {
+          for(var j=0; j<Players.find().count();j++) {
+            if (mySum[j].votes == largestVote){
+              Players.update(mySum[j]._id, { $set: {votedOut: true}});
+              Players.update(mySum[j]._id, { $set: {votes: 0}});
+              console.log("Who's getting revoted: ")
+              console.log(mySum[j].name);
+              console.log(Players.findOne(mySum[j]._id));
+            } else {
+              Players.update(mySum[j]._id, { $set: {votedOut: false}});
+              Players.update(mySum[j]._id, { $set: {dontHide: false}});
+              Players.update(mySum[j]._id, { $set: {voted: false}});
+              Players.update(mySum[j]._id, { $set: {votes: 0}});
+            }
+          }
+        }
+      }
+      
+      if(Players.findOne(votedPlayerID).votes > majorityVote) {
         // flashmessages for the voted player
         if(Players.findOne(votedPlayerID).isOdd) {
           console.log("Great!");
@@ -799,74 +812,27 @@ Template.gameView.events({
         }
         
         Players.update(votedPlayerID, { $set: {votedOut: true}});
-        console.log(Players.findOne(votedPlayerID).votedOut);
-        // Refactored -PD
-        // var player = Players.findOne(votedPlayerID)
-        // Players.remove(player._id);
-        //Players.remove(votedPlayerID);
-
-        // I don't think this code should be here -PD
-        // Session.set("playerID", null);
-
-
-
-        if(currentPlayer._id == votedPlayerID)
-          {
-             GAnalytics.event("game-actions", "gameleave");
-              // Not needed - PD
-              // var player = getCurrentPlayer();
-              Session.set("currentView", "startMenu");
-              Session.set("playerID", null);
-          }
-      }
-
-    } else {
+        Players.update(votedPlayerID, { $set: {dontHide: false}});
+        Players.update(votedPlayerID, { $set: {votes: 0}});
+        var players = Players.find({gameID: game._id});
+        players.forEach(function(player){
+            if (player.votedOut != true || player.dontHide != false){
+            Players.update(player._id, {$set: {
+            votedOut: false,
+            dontHide: true,
+            voted: false,
+            votes: 0
+          }});
+        }
+      }); console.log(Players.find().fetch());
+      } else {
       console.log("Current player has already voted");
+      console.log(Players.find().fetch());
+      console.log("done2")
+      }
     }
-
   }
-
-
-  //   if (AllVotesIn()){
-  //     console.log("ALL VOTES ARE IN");
-  //     VotedOutPlayer = getVotedOutPlayer();
-  //     if(!IsTie()){
-  //       console.log("NOT A TIE");
-  //     }else{
-  //       console.log("TIE HAS OCCURED");
-  //     }
-  //   }
-  // },
-  // AllVotesIn: function (){
-  //   var VotesNeeded = 0;
-  //   Players.forEach(function(player){
-  //     if (player.votedOut == false){
-  //       ++VotesNeeded;
-  //     }
-  //   })
-  //
-  //   var TotalVotes = 0;
-  //   TotalVotes = Players.forEach(function(player){
-  //     TotalVotes = player.votes + TotalVotes;
-  //   })
-  //
-  //   if (TotalVotes == VotesNeeded){
-  //     return true;
-  //   }else{
-  //     return false;
-  //   }
-  // },
-  // getVotedOutPlayer: function (){
-  //   var MaxVotes = 0;
-  //   var PlayerVotedOut = Players.forEach(function(player){
-  //     if (player.votes > MaxVotes){
-  //       PlayerName = player.name;
-  //     }
-  //     return PlayerName
-  //   })
-  //   return VotedOutPlayer;
-  // },
-  // IsTie: function () {
-  //
-  // }
 });
+
+
+        
