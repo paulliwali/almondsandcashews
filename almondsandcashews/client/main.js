@@ -117,6 +117,14 @@ function getRadioValue(theRadioGroup){
   }
 }
 
+function uncheckRadioButton(theRadioGroup){
+  var elements = document.getElementsByName(theRadioGroup);
+  for (var i = 0, l = elements.length; i < l; i++){
+      elements[i].checked = false;
+    }
+  return;
+}
+
 function generateNewGame(){
   var game = {
     accessCode: generateAccessCode(),
@@ -296,7 +304,7 @@ function restartGame() {
   Games.update(game._id, {$set: {state: 'waitingForPlayers'}});
   Players.update(player._id, { $set: {
     votedOut: false,
-    dontHide: false,
+    dontHide: true,
     voted: false,
     votes: 0
   }});
@@ -788,6 +796,7 @@ Template.gameView.events({
 
     if (!currentPlayer.voted ) {
       var votedPlayerID = getRadioValue('selectedPlayer');
+      uncheckRadioButton('selectedPlayer');
       Players.update(votedPlayerID, { $inc: {votes: 1}});
 
       console.log("testing - votebutton");
