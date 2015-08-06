@@ -210,6 +210,14 @@ function assignItems(gameMode, players, item){
   }
 }
 
+function CheckEnoughItems(game){
+  if(game.items.length < 2){
+    return false;
+  }else{
+    return true;
+  }
+}
+
 function assignAdvancedItems(gameMode, players, game){
   // check advanced mode
   if(gameMode == "advanced"){
@@ -652,6 +660,7 @@ Template.lobbyAdvanced.helpers({
 Template.lobbyAdvanced.events({
   'click .btn-leave': leaveGame,
   'click .btn-start': function () {
+
     GAnalytics.event("game-actions", "gamestart");
 
     var game = getCurrentGame();
@@ -661,6 +670,11 @@ Template.lobbyAdvanced.events({
     var gameEndTime = TimeSync.serverTime(localEndTime);
     var oddIndex = Math.floor(Math.random() * players.count());
     var firstPlayerIndex = Math.floor(Math.random() * players.count());
+
+    if (CheckEnoughItems(game)){
+      console.log("NOT ENOUGH ITEMS!");
+      return;
+    }
 
     players.forEach(function(player, index){
       Players.update(player._id, {$set: {
