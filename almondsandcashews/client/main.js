@@ -131,12 +131,7 @@ function generateNewGame(){
     state: "waitingForPlayers",
     gameMode: null,
     category: null,
-    items: [
-      {item: "test1"},
-      {item: "test2"},
-      {item: "test3"},
-      {item: "test4"}
-    ],
+    items: [],
     lengthInMinutes: 8,
     endTime: null,
     paused: false,
@@ -210,7 +205,9 @@ function assignItems(gameMode, players, item){
   }
 }
 
-function CheckEnoughItems(game){
+function enoughItems(game){
+  console.log(game.items);
+  console.log("NUM ITEMS = " + game.items.length);
   if(game.items.length < 2){
     return false;
   }else{
@@ -671,7 +668,8 @@ Template.lobbyAdvanced.events({
     var oddIndex = Math.floor(Math.random() * players.count());
     var firstPlayerIndex = Math.floor(Math.random() * players.count());
 
-    if (CheckEnoughItems(game)){
+    // CHECK FOR ENOUGH ITEMS - BP
+    if (!enoughItems(game)){
       console.log("NOT ENOUGH ITEMS!");
       return;
     }
