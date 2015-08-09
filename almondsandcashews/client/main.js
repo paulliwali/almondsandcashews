@@ -811,34 +811,23 @@ Template.gameView.events({
       uncheckRadioButton('selectedPlayer');
       Players.update(votedPlayerID, { $inc: {votes: 1}});
 
-      // console.log("testing - votebutton");
-      // console.log(votedPlayerID);
-      // console.log(Players.find().fetch());
-      // console.log(Players.findOne(votedPlayerID));
-
       // set player.voted to true after submitting a vote
       Players.update(currentPlayer._id, { $set: {voted: true}});
 
-      console.log(currentPlayer._id);
-      console.log(Players.findOne(currentPlayer._id));
-      console.log(Players.find().count());
+      console.log("Voted Player:")
+      console.log(votedPlayerID.name)
 
-      var majorityVote = Players.find({'dontHide': true}).count() / 2;
+      var majorityVote = Players.find({'votedOut': false}).count() / 2;
       var mySum = Players.find().fetch();
       var numVotes=0;
       var largestVote=0;
 
       for (var i=0; i<Players.find().count();i++){
         numVotes += mySum[i].votes;
-        console.log("numVotes")
-        console.log(numVotes)
-        console.log("Donthide count")
-        console.log(Players.find({'dontHide': true}).count())
         if (mySum[i].votes>largestVote)
           largestVote = mySum[i].votes;
-        console.log("largest vote")
-        console.log(largestVote)
-        if (numVotes == Players.find({'dontHide': true}).count() && Players.findOne(votedPlayerID).votes <= majorityVote) {
+  
+        if (numVotes == Players.find({'votedOut': false}).count() && Players.findOne(votedPlayerID).votes <= majorityVote) {
           for(var j=0; j<Players.find().count();j++) {
             if (mySum[j].votes == largestVote && (numVotes/largestVote != numVotes) && 
               mySum[j].votedOut != true && mySum[j].dontHide != false) {
