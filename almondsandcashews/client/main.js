@@ -826,8 +826,9 @@ Template.gameView.events({
         numVotes += mySum[i].votes;
         if (mySum[i].votes>largestVote)
           largestVote = mySum[i].votes;
-  
-        if (numVotes == Players.find({'votedOut': false}).count() && Players.findOne(votedPlayerID).votes <= majorityVote) {
+        //if there's more than 1 largest vote, then skip this next if
+        if (numVotes == Players.find({'votedOut': false}).count() && Players.findOne(votedPlayerID).votes <= majorityVote &&
+            Players.find({'votes': largestVote}).count() != 1) {
           for(var j=0; j<Players.find().count();j++) {
             if (mySum[j].votes == largestVote && (numVotes/largestVote != numVotes) && 
               mySum[j].votedOut != true && mySum[j].dontHide != false) {
@@ -858,23 +859,28 @@ Template.gameView.events({
           });
         }
       }
-
-      if(Players.findOne(votedPlayerID).votes > majorityVote) {
+   
+      if(Players.find({'votes': largestVote}).count() == 1 && numVotes == Players.find({'votedOut': false}).count()) {
         // flashmessages for the voted player
-        console.log("largestVote")
-        console.log(largestVote)
-        if(Players.findOne(votedPlayerID).isOdd) {
-          console.log("Great!");
-          FlashMessages.sendSuccess("Great! The odd player was voted out!");
-        } else if (!Players.findOne(votedPlayerID).isOdd) {
-          console.log("Drag!");
-          FlashMessages.sendWarning("Shoot! That wasn't the odd player.");
-        }
-
-        Players.update(votedPlayerID, { $set: {votedOut: true}});
-        Players.update(votedPlayerID, { $set: {dontHide: false}});
-        Players.update(votedPlayerID, { $set: {votes: 0}});
+        // console.log("largestVote")
+        // console.log(largestVote)
+        // if(Players.findOne(votedPlayerID).isOdd) {
+        //   console.log("Great!");
+        //   FlashMessages.sendSuccess("Great! The odd player was voted out!");
+        // } else if (!Players.findOne(votedPlayerID).isOdd) {
+        //   console.log("Drag!");
+        //   FlashMessages.sendWarning("Shoot! That wasn't the odd player.");
+        // }
         var players = Players.find({gameID: game._id});
+        players.forEach(function(player){
+            if (player.votes == largestVote){
+            Players.update(player._id, {$set: {
+            votedOut: true,
+            dontHide: false,
+            votes: 0
+            }});
+          }
+        });
         players.forEach(function(player){
             if ((player.votedOut != true || player.dontHide != false)){
             Players.update(player._id, {$set: {
@@ -884,11 +890,10 @@ Template.gameView.events({
             votes: 0
           }});
         }
-      }); console.log(Players.find().fetch());
+      }); 
       } else {
-      console.log("Current player has already voted");
-      console.log(Players.find().fetch());
-      console.log("done2")
+      console.log("PlayerList info:")
+      console.log(Players.find().fetch())
       }
     }
   }
