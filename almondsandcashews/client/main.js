@@ -811,10 +811,10 @@ Template.gameView.events({
       uncheckRadioButton('selectedPlayer');
       Players.update(votedPlayerID, { $inc: {votes: 1}});
 
-      console.log("testing - votebutton");
-      console.log(votedPlayerID);
-      console.log(Players.find().fetch());
-      console.log(Players.findOne(votedPlayerID));
+      // console.log("testing - votebutton");
+      // console.log(votedPlayerID);
+      // console.log(Players.find().fetch());
+      // console.log(Players.findOne(votedPlayerID));
 
       // set player.voted to true after submitting a vote
       Players.update(currentPlayer._id, { $set: {voted: true}});
@@ -830,22 +830,35 @@ Template.gameView.events({
 
       for (var i=0; i<Players.find().count();i++){
         numVotes += mySum[i].votes;
+        console.log("numVotes")
+        console.log(numVotes)
+        console.log("Donthide count")
+        console.log(Players.find({'dontHide': true}).count())
         if (mySum[i].votes>largestVote)
           largestVote = mySum[i].votes;
 
-        if (numVotes == Players.find().count() && Players.findOne(votedPlayerID).votes <= majorityVote) {
+        if (numVotes == Players.find({'dontHide': true}).count() && Players.findOne(votedPlayerID).votes <= majorityVote) {
           for(var j=0; j<Players.find().count();j++) {
-            if (mySum[j].votes == largestVote){
-              Players.update(mySum[j]._id, { $set: {votedOut: true}});
-              Players.update(mySum[j]._id, { $set: {votes: 0}});
-              console.log("Who's getting revoted: ")
-              console.log(mySum[j].name);
-              console.log(Players.findOne(mySum[j]._id));
-            } else {
-              Players.update(mySum[j]._id, { $set: {votedOut: false}});
-              Players.update(mySum[j]._id, { $set: {dontHide: false}});
-              Players.update(mySum[j]._id, { $set: {voted: false}});
-              Players.update(mySum[j]._id, { $set: {votes: 0}});
+            if (mySum[j].votes == largestVote && (numVotes/largestVote != numVotes) && 
+              mySum[j].votedOut != true && mySum[j].dontHide != false) {
+                Players.update(mySum[j]._id, { $set: {votedOut: true}});
+                Players.update(mySum[j]._id, { $set: {votes: 0}});
+                Players.update(mySum[j]._id, { $set: {voted: false}});
+                console.log("Temp out of game")
+                console.log(mySum[j].name)
+            } else if (mySum[j].votedOut != true && mySum[j].dontHide != false ) {
+              if (numVotes/largestVote != numVotes) {
+                Players.update(mySum[j]._id, { $set: {votedOut: false}});
+                Players.update(mySum[j]._id, { $set: {dontHide: false}});
+                Players.update(mySum[j]._id, { $set: {voted: false}});
+                Players.update(mySum[j]._id, { $set: {votes: 0}});
+              }
+              else {
+                Players.update(mySum[j]._id, { $set: {votedOut: false}});
+                Players.update(mySum[j]._id, { $set: {dontHide: true}});
+                Players.update(mySum[j]._id, { $set: {voted: false}});
+                Players.update(mySum[j]._id, { $set: {votes: 0}});
+              }
             }
           }
         }
@@ -853,6 +866,8 @@ Template.gameView.events({
 
       if(Players.findOne(votedPlayerID).votes > majorityVote) {
         // flashmessages for the voted player
+        console.log("largestVote")
+        console.log(largestVote)
         if(Players.findOne(votedPlayerID).isOdd) {
           console.log("Great!");
           FlashMessages.sendSuccess("Great! The odd player was voted out!");
@@ -866,7 +881,7 @@ Template.gameView.events({
         Players.update(votedPlayerID, { $set: {votes: 0}});
         var players = Players.find({gameID: game._id});
         players.forEach(function(player){
-            if (player.votedOut != true || player.dontHide != false){
+            if ((player.votedOut != true || player.dontHide != false)){
             Players.update(player._id, {$set: {
             votedOut: false,
             dontHide: true,
