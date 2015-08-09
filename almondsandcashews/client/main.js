@@ -836,7 +836,8 @@ Template.gameView.events({
         console.log(Players.find({'dontHide': true}).count())
         if (mySum[i].votes>largestVote)
           largestVote = mySum[i].votes;
-
+        console.log("largest vote")
+        console.log(largestVote)
         if (numVotes == Players.find({'dontHide': true}).count() && Players.findOne(votedPlayerID).votes <= majorityVote) {
           for(var j=0; j<Players.find().count();j++) {
             if (mySum[j].votes == largestVote && (numVotes/largestVote != numVotes) && 
@@ -844,8 +845,6 @@ Template.gameView.events({
                 Players.update(mySum[j]._id, { $set: {votedOut: true}});
                 Players.update(mySum[j]._id, { $set: {votes: 0}});
                 Players.update(mySum[j]._id, { $set: {voted: false}});
-                console.log("Temp out of game")
-                console.log(mySum[j].name)
             } else if (mySum[j].votedOut != true && mySum[j].dontHide != false ) {
               if (numVotes/largestVote != numVotes) {
                 Players.update(mySum[j]._id, { $set: {votedOut: false}});
@@ -861,6 +860,13 @@ Template.gameView.events({
               }
             }
           }
+          var players = Players.find({gameID: game._id});
+          players.forEach(function(player){
+            Players.update(player._id, {$set: {
+            voted: false,
+            votes: 0
+          }});
+          });
         }
       }
 
