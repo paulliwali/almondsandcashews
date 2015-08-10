@@ -135,7 +135,8 @@ function generateNewGame(){
     lengthInMinutes: 8,
     endTime: null,
     paused: false,
-    pausedTime: null
+    pausedTime: null,
+    scrollTop: false
   };
 
   var gameID = Games.insert(game);
@@ -289,6 +290,12 @@ function trackGameState () {
         Session.set("currentView", "lobbyAdvanced");
       }
   }
+
+  if(game.scrollTop == true){
+    $('html, body').animate({ scrollTop: 0 }, 'fast');
+    Games.update(game._id, {$set: {scrollTop: false}});
+
+  }
 }
 
 function leaveGame () {
@@ -358,7 +365,7 @@ Tracker.autorun(trackGameState);
 
 FlashMessages.configure({
   autoHide: true,
-  autoScroll: false
+  autoScroll: true
 });
 
 Template.main.helpers({
@@ -859,18 +866,17 @@ Template.gameView.events({
           });
         }
       }
-   
+      console.log("largestVote:")
+      console.log(largestVote)
+      console.log("largestVote count:")
+      console.log(Players.find({'votes': largestVote}).count())
+      console.log("numVotes")
+      console.log(numVotes)
+      console.log("votedOut is false count:")
+      console.log(Players.find({'votedOut': false}).count())
+      
       if(Players.find({'votes': largestVote}).count() == 1 && numVotes == Players.find({'votedOut': false}).count()) {
-        // flashmessages for the voted player
-        // console.log("largestVote")
-        // console.log(largestVote)
-        // if(Players.findOne(votedPlayerID).isOdd) {
-        //   console.log("Great!");
-        //   FlashMessages.sendSuccess("Great! The odd player was voted out!");
-        // } else if (!Players.findOne(votedPlayerID).isOdd) {
-        //   console.log("Drag!");
-        //   FlashMessages.sendWarning("Shoot! That wasn't the odd player.");
-        // }
+
         var players = Players.find({gameID: game._id});
         players.forEach(function(player){
             if (player.votes == largestVote){
@@ -879,6 +885,13 @@ Template.gameView.events({
             dontHide: false,
             votes: 0
             }});
+            if (player.isOdd) {
+              console.log("Great!");
+              FlashMessages.sendSuccess("Great! The odd player was voted out!");
+            } else if(!player.isOdd) {
+              console.log("God dang it Bobby!");
+              FlashMessages.sendWarning("Shoot! That wasn't the odd player.");
+            }
           }
         });
         players.forEach(function(player){
@@ -891,6 +904,7 @@ Template.gameView.events({
           }});
         }
       }); 
+      Games.update(game._id, {$set: {scrollTop: true}});
       } else {
       console.log("PlayerList info:")
       console.log(Players.find().fetch())
