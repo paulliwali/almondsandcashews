@@ -281,7 +281,7 @@ function trackGameState () {
 
   // track the state for the game, added new code to look for the
   // game mode of classic or advanced
-  if(game.state === "inProgress"){
+  if (game.state === "inProgress"){
     Session.set("currentView", "gameView");
   } else if (game.state === "waitingForPlayers") {
       if(game.mode === "classic"){
@@ -291,10 +291,22 @@ function trackGameState () {
       }
   }
 
-  if(game.scrollTop == true){
+  if (game.scrollTop == true) {
     $('html, body').animate({ scrollTop: 0 }, 'fast');
     Games.update(game._id, {$set: {scrollTop: false}});
 
+        var players = Players.find({gameID: game._id});
+        players.forEach(function(player){
+            if (player.votedOut == true && player.dontHide == false){
+            if (player.isOdd) {
+              console.log("Great!");
+              FlashMessages.sendSuccess("Great! The odd player was voted out!");
+            } else if(!player.isOdd) {
+              console.log("God dang it Bobby!");
+              FlashMessages.sendWarning("Shoot! That wasn't the odd player.");
+            }
+          }
+        });
   }
 }
 
@@ -885,13 +897,6 @@ Template.gameView.events({
             dontHide: false,
             votes: 0
             }});
-            if (player.isOdd) {
-              console.log("Great!");
-              FlashMessages.sendSuccess("Great! The odd player was voted out!");
-            } else if(!player.isOdd) {
-              console.log("God dang it Bobby!");
-              FlashMessages.sendWarning("Shoot! That wasn't the odd player.");
-            }
           }
         });
         players.forEach(function(player){
