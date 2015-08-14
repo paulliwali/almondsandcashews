@@ -136,7 +136,7 @@ function generateNewGame(){
     endTime: null,
     paused: false,
     pausedTime: null,
-    scrollTop: false
+    gameMessage: null
   };
 
   var gameID = Games.insert(game);
@@ -291,23 +291,24 @@ function trackGameState () {
       }
   }
 
-  if (game.scrollTop == true) {
-    $('html, body').animate({ scrollTop: 0 }, 'fast');
-    Games.update(game._id, {$set: {scrollTop: false}});
+  Tracker.autorun(trackMessageState);
 
-        var players = Players.find({gameID: game._id});
-        players.forEach(function(player){
-            if (player.votedOut == true && player.dontHide == false){
-            if (player.isOdd) {
-              console.log("Great!");
-              FlashMessages.sendSuccess("Great! The odd player was voted out!");
-            } else if(!player.isOdd) {
-              console.log("God dang it Bobby!");
-              FlashMessages.sendWarning("Shoot! That wasn't the odd player.");
-            }
-          }
-        });
-  }
+}
+
+function trackMessageState () {
+  var game = getCurrentGame();
+
+  FlashMessages.sendInfo(game.gameMessage);
+}
+
+function clearMessage () {
+  var game = getCurrentGame();
+  Games.update(game._id, {$set: {gameMessage: null}});
+}
+
+function setMessage (msg) {
+  var game = getCurrentGame();
+  Games.update(game._id, {$set: {gameMessage: msg}});
 }
 
 function leaveGame () {
@@ -376,8 +377,8 @@ Meteor.setInterval(function () {
 Tracker.autorun(trackGameState);
 
 FlashMessages.configure({
-  autoHide: true,
-  autoScroll: true
+  autoHide: false,
+  autoScroll: false
 });
 
 Template.main.helpers({
@@ -797,6 +798,9 @@ Template.gameView.helpers({
 Template.gameView.events({
   'click .btn-leave': leaveGame,
   'click .btn-end': endGame,
+  'click .game-message': function () {
+    FlashMessages.clear();
+  },
   'click .btn-restart': restartGame,
   'click .btn-toggle-status': function () {
     $(".status-container-content").toggle();
@@ -849,7 +853,7 @@ Template.gameView.events({
         if (numVotes == Players.find({'votedOut': false}).count() && Players.findOne(votedPlayerID).votes <= majorityVote &&
             Players.find({'votes': largestVote}).count() != 1) {
           for(var j=0; j<Players.find().count();j++) {
-            if (mySum[j].votes == largestVote && (numVotes/largestVote != numVotes) && 
+            if (mySum[j].votes == largestVote && (numVotes/largestVote != numVotes) &&
               mySum[j].votedOut != true && mySum[j].dontHide != false) {
                 Players.update(mySum[j]._id, { $set: {votedOut: true}});
                 Players.update(mySum[j]._id, { $set: {votes: 0}});
@@ -886,7 +890,7 @@ Template.gameView.events({
       console.log(numVotes)
       console.log("votedOut is false count:")
       console.log(Players.find({'votedOut': false}).count())
-      
+
       if(Players.find({'votes': largestVote}).count() == 1 && numVotes == Players.find({'votedOut': false}).count()) {
 
         var players = Players.find({gameID: game._id});
@@ -897,6 +901,15 @@ Template.gameView.events({
             dontHide: false,
             votes: 0
             }});
+            if (player.isOdd) {
+               //Games.update(game._id, {$set: {gameMessage: "Great! The odd player was voted out!"}});
+               setMessage("Great! The odd player was voted out!");
+               clearMessage();
+             } else if(!player.isOdd) {
+               //Games.update(game._id, {$set: {gameMessage: "Shoot! That wasn't the odd player."}});
+               setMessage("Shoot! That wasn't the odd player.");
+               clearMessage();
+             }
           }
         });
         players.forEach(function(player){
@@ -908,8 +921,7 @@ Template.gameView.events({
             votes: 0
           }});
         }
-      }); 
-      Games.update(game._id, {$set: {scrollTop: true}});
+      });
       } else {
       console.log("PlayerList info:")
       console.log(Players.find().fetch())

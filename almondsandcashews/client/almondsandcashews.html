@@ -193,7 +193,7 @@
 
   <h4><a href="#" class="game-countdown {{#if gameFinished }}finished{{/if}} {{#if game.paused }}paused{{/if}}">{{{ timeRemaining }}}</a></h4>
 
-  {{> flashMessages }}
+  <a href="#" class="game-message">{{> flashMessages }}</a>
 
   {{#unless player.votedOut }}
   <div class="status-container">
